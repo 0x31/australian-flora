@@ -1,0 +1,109 @@
+.SearchInput {
+
+    width: 100%;
+
+    form {
+        width: 100%;
+        flex: 1 0 auto;
+        max-width: 665px;
+        margin: 0 auto;
+
+        box-sizing: border-box;
+        border-radius: 4px;
+        position: relative;
+        height: 46px;
+        background-color: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.06);
+        padding-left: 10px;
+        display: flex;
+    }
+
+    input[type=text] {
+        font-size: 17px;
+        font-weight: normal;
+        display: block;
+        width: 100%;
+        background: none;
+        outline: none;
+        border: none;
+        padding: 0;
+        height: 46px;
+        z-index: 1;
+        position: relative;
+        top: -1px;
+        flex: 1;
+    }
+
+    button {
+
+        &:hover {
+            background-color: #FE7D00;
+            color: white;
+
+            path {
+                fill: white;
+            }
+        }
+
+        border-radius: 0 4px 4px 0;
+        color: #999;
+        min-height: 100%;
+        background-color: transparent;
+        font-style: normal;
+
+        font-weight: normal !important;
+
+        font-variant: normal;
+
+        text-transform: none;
+
+        text-decoration: none !important;
+
+        -webkit-font-smoothing: antialiased;
+
+        -moz-osx-font-smoothing: grayscale;
+
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+        width: 46px;
+
+        display: block;
+
+        cursor: pointer;
+
+        background: transparent;
+
+        background-color: transparent;
+        background-position-x: 0%;
+        background-position-y: 0%;
+        background-repeat: repeat;
+
+        text-align: center;
+
+        border: none;
+
+        top: 0;
+
+        bottom: 0;
+
+        right: 2px;
+
+        left: auto;
+
+        margin: auto;
+        margin-top: auto;
+        margin-right: auto;
+        margin-bottom: auto;
+
+        z-index: 2;
+
+        outline: none;
+        padding: 0;
+
+        svg {
+            height: 16px;
+            width: 16px;
+        }
+    }
+}
