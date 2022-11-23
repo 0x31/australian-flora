@@ -1,0 +1,23 @@
+# Large data repository
+data
+
+# Build artifacts
+build
+
+# Environment variables
+*.env
+.env*
+
+# Dependency files
+node_modules
+.cache
+package-lock.json
+*.log
+
+# Editor files
+.vscode
+.editorconfig
+.idea
+
+# OS files
+.DS_Store

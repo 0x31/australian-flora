@@ -1,43 +1,49 @@
-# (yet another) Australian Plant Search
+# Australian Flora Search
 
-A search engine and data aggregator for Australian native plants with a focus on being useful for gardeners.
+**NOTICE**: This is a hobby website - information and images may be inaccurate
 
-Goals:
-[x] Users can search for plants by common names and scientific names.
-[x] Users can see related plants to the top result - subspecies, cultivars, etc.
-[ ] Users can sign up to create lists/checklists of plants.
+A search engine and data aggregator for Australian native plants. The goal isn't to be an original source of information, but to link out to other more authoritative sources and provide user-friendly searching and discoverability.
 
-## TODO:
+# Screenshot
 
-* The APNI doesn't indicate if a plant is native or naturalised.
-* Use Wikipedia stats as a way to measure popularity of plants for sorting.
-* Get pictures and descriptions from wikipedia.
+![Screenshot](./screenshot-v1-nov-2022.png)
 
-Wikipedia stats:
+<details><summary>Previous Version</summary>
 
-`curl -X GET https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents/Isopogon_sphaerocephalus/monthly/2004100100/2020040200`
+![Screenshot](./screenshot-v0.png)
 
-## Data sources
+</details>
 
-Database retrieved from https://biodiversity.org.au/nsl/services/export/index
+<br />
 
-Other potential sources:
+# Todo List:
 
-1. https://bie.ala.org.au/species/https://id.biodiversity.org.au/taxon/apni/51270591
-2. Direct APNI: https://www.anbg.gov.au/apni/apni.html
-3. Aus Plants: https://austplants.com.au/plant-database
-4. Angus: https://www.gardeningwithangus.com.au/category/plant-database/page/123/
-5. FloraBase: https://florabase.dpaw.wa.gov.au/search/quick?q=isopogon
-6. ALA - Atlas of Living Australia - https://bie.ala.org.au/species/https://id.biodiversity.org.au/name/apni/195580
-7. JSTOR: https://plants.jstor.org/search?genus=Isopogon&species=anemonifolius
-8. KEW: http://apps.kew.org/herbcat/getHomePageResults.do?homePageSearchText=Isopogon+anemonifolius
-9. ALA flora (pictures): https://profiles.ala.org.au/opus/foa/search
+-   Fine-grained distribution data
+-   Allow filtering search results by various fields including distribution
+-   For genuses and higher taxa, filter out images of non-Australian species
+-   Ensure copyright compliance (e.g. Florabase images may need to be removed)
+-   Add content to homepage, including featured taxa, popular searches, etc.
 
-Misc.
-1. DNA? https://www.ncbi.nlm.nih.gov/nuccore/363990557
-2. ABNG Confluence: https://www.anbg.gov.au/ibis25/display/NSL/Home
+# Data sources
 
+The main data source is the APNI and APC exports retrieved from https://biodiversity.org.au
 
-## Notes
+Additionally, images and descriptions are fetched from other sources including Wikipedia and Florabase (WA plants).
 
-Interesting plants I've found while making this: https://www.flowerpower.com.au/isopogon-candy-cones-9336922015688 (https://pma.com.au/supportcentre/Images/FactSheet/i_candycones_fs_web.pdf)
+Additional sources may be added in the future, including:
+
+-   Atlas of Living Australia: https://bie.ala.org.au/species/https://id.biodiversity.org.au/taxon/apni/51270591
+    -   ALA Flora of Australia: https://profiles.ala.org.au/opus/foa/search
+-   APNI on ANBG website: https://www.anbg.gov.au/apni/apni.html
+-   Aus Plants: https://austplants.com.au/plant-database
+-   DNA: https://www.ncbi.nlm.nih.gov/nuccore/363990557
+-   JSTOR: https://plants.jstor.org/search?genus=Isopogon&species=anemonifolius
+-   KEW: http://apps.kew.org/herbcat/getHomePageResults.do?homePageSearchText=Isopogon+anemonifolius
+-   Grin Global Taxonomy: https://npgsweb.ars-grin.gov/gringlobal/taxon/taxonomydetail?id=454051
+-   Many others to consider...
+
+# Tech stack
+
+The frontend was built with React, Create-React-App and Tailwind. Because it has minimal state, no state management library was used (e.g. Redux, unstated, contexts, etc.).
+
+The backend is a NodeJS server using express.js. The backend currently creates in-memory maps from various CSV and JSON files, instead of using a proper SQL database. This was a fast way to get it up and running to test the frontend, but is not efficient or extensible, so will be refactored at some point.

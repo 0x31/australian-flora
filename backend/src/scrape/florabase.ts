@@ -1,146 +1,127 @@
-import { DatapointExtra } from "../types/db";
+import { join } from "path";
 
-const Axios = require("axios");
-const $ = require('cheerio');
-const fs = require("fs");
+import Axios from "axios";
+import chalk from "chalk";
+import $ from "cheerio";
+import { isTag, isText, NodeWithChildren } from "domhandler";
 
-const download_image = (url, image_path) =>
-    Axios({
-        url,
-        responseType: 'stream',
-    }).then(
-        response =>
-            new Promise((resolve, reject) => {
-                response.data
-                    .pipe(fs.createWriteStream(image_path))
-                    .on('finish', () => resolve())
-                    .on('error', e => reject(e));
-            }),
-    );
+import {
+    EXTENDED_FILE,
+    IMAGES_LARGE_DIR,
+    IMAGES_ORIGINAL_DIR,
+    IMAGES_THUMBNAILS_DIR,
+} from "../config";
+import { Database } from "../db/loadDB";
+import { ExtraLayout } from "../types/result";
+import { downloadImage, timestamp, updateJSON } from "./scrapeUtils";
 
-export const readJSON = (name: string) => new Promise((resolve, reject) => {
-    fs.readFile(name, (error, data) => {
-        try {
-            if (error) throw error;
-            let value = JSON.parse(data);
-            resolve(value);
-        } catch (error) {
-            reject(error);
+// Extract the text of an element until it reaches a <br /> element.
+const extractTextUntilBr = (element: NodeWithChildren) => {
+    let text = "";
+    let children = [...element.children];
+    for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        if (isTag(child)) {
+            if (child.name === "br") {
+                break;
+            }
+            children = [
+                ...children.slice(0, i + 1),
+                ...((child as NodeWithChildren).children || []),
+                ...children.slice(i + 1, children.length),
+            ];
+        } else if (isText(child)) {
+            text += child.data;
         }
-    });
-});
-
-const writeToJSON = (name: string, json: any) => {
-    fs.writeFileSync(name, JSON.stringify(json));
-}
-
-export const EXTENDED_FILE = "./extendedData.json";
-const updateJSON = async (query: string, keys: string[], value: any) => {
-    const json = await readJSON(EXTENDED_FILE);
-    json[query] = json[query] || {};
-    let lastItem = json[query];
-
-    if (keys.length === 0) {
-        throw new Error("Invalid number of keys");
     }
+    return text.trim().replace(/  /g, "");
+};
 
-    // Access each key until the last
-    for (const key of keys.slice(0, keys.length - 1)) {
-        lastItem[key] = lastItem[key] || {};
-        lastItem = lastItem[key];
-    }
-    // Set value for the last key
-    lastItem[keys[keys.length - 1]] = value;
-    writeToJSON(EXTENDED_FILE, json);
-}
-
-
-export const scrapeFlorabase = async (query: string) => {
-
-    const json = await readJSON(EXTENDED_FILE);
-    if (json[query] && json[query].timestamp !== undefined) {
-        return json[query];
+/**
+ *
+ * @param query The plant's full scientific name.
+ * @returns
+ */
+export const scrapeFlorabase = async (
+    db: Database,
+    query: string
+): Promise<boolean> => {
+    // Check if the plant has already been fetched from Florabase.
+    if (db.extended[query]?.florabase?.timestamp !== undefined) {
+        return false;
     }
 
     const url = `https://florabase.dpaw.wa.gov.au/search/quick?q=${query}`;
 
-    console.log(`Requesting ${url}`);
+    console.log(` > Requesting ${chalk.blue(url)}`);
     const html = (await Axios.get(url)).data;
 
     const rows = $("tr", html);
 
-    let final;
+    // Search <tr> rows for row with the matching query.
+    const final = rows.toArray().find((row) =>
+        $("td", row as any)
+            .toArray()
+            .find((node) => extractTextUntilBr(node) === query)
+    );
 
-    for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        const columns = $("td", row as any);
+    const anchors = $(final).find("a");
 
-        let p;
-
-        for (let j = 0; j < columns.length; j++) {
-            // console.log(`Column ${j + 1}:`, columns[j]);
-            for (const child of columns[j].children) {
-                if (child.type === "tag" && child.name === "p") {
-                    p = child;
-                    break;
-                }
-            }
-        }
-
-        if (p) {
-            let text = "";
-            let children = [...p.children];
-            for (let i = 0; i < children.length; i++) {
-                if (children[i].type === "tag" && children[i].name !== "span") {
-                    children = [...children.slice(0, i + 1), ...children[i].children, ...children.slice(i + 1, children.length)];
-                } else if (children[i].type === "text") {
-                    text += children[i].data;
-                }
-            }
-            const finalString = text.trim().replace(/  /g, "");
-
-            if (finalString === query) {
-                final = row;
-            }
-        }
-
-        // console.log((row as any).children[1].children[0].children);
-    }
-
-    let id: string;
+    let id: string | undefined;
     let hasImage = false;
+    let hasProfile = false;
 
-    const columns = $("td", final);
-    for (let j = 0; j < columns.length; j++) {
-        // console.log(`Column ${j + 1}:`, columns[j]);
-        for (const child of columns[j].children) {
-            if (child.type === "tag" && child.name === "a") {
-                const href = child.attribs.href;
-                if (href && href.match(/^\/.*\/(\d+)$/)) {
-                    id = href.match(/^\/.*\/(\d+)$/)[1];
-                }
-                if (href && href.match(/\/browse\/photo/)) {
-                    hasImage = true;
-                }
+    for (const child of anchors) {
+        if (child.type === "tag" && child.name === "a") {
+            const href = child.attribs.href;
+            const match = href.match(/^\/.*\/(\d+)$/);
+            if (href && match && match?.length > 1) {
+                id = match[1];
+            }
+            if (href && href.match(/\/browse\/photo/)) {
+                hasImage = true;
+            }
+            if (href && href.match(/\/browse\/profile/)) {
+                hasProfile = true;
             }
         }
     }
 
-    console.log(id);
+    console.log(` > Florabase id: ${id || "not found"}`);
 
-    await updateJSON(query, ["florabase", "timestamp"], Math.floor(new Date().getTime() / 1000));
-    if (id) {
-        await updateJSON(query, ["florabase", "id"], id);
-        await updateJSON(query, ["florabase", "profile"], `https://florabase.dpaw.wa.gov.au/browse/profile/${id}`);
+    const originalImage = join(IMAGES_ORIGINAL_DIR, `/florabase/${query}.jpg`);
+    const thumbnailImage = join(
+        IMAGES_THUMBNAILS_DIR,
+        `/florabase/${query}.jpg`
+    );
+    const largeImage = join(IMAGES_LARGE_DIR, `/florabase/${query}.jpg`);
 
-
-        if (hasImage) {
-            const url = `https://florabase.dpaw.wa.gov.au//science/timage/${id}ic1.jpg`;
-            await download_image(url, `./images/${query}.jpg`);
-            await updateJSON(query, ["florabase", "image"], `/images/${query}.jpg`);
-        }
+    if (id && hasImage) {
+        await downloadImage(
+            `https://florabase.dpaw.wa.gov.au/science/timage/${id}ic1.jpg`,
+            originalImage,
+            thumbnailImage,
+            largeImage
+        );
     }
 
-    // const newJSON = await readJSON(EXTENDED_FILE);
-    // return newJSON[query];
+    db.extended = await updateJSON<ExtraLayout>(EXTENDED_FILE, query, {
+        florabase: {
+            timestamp: timestamp(),
+            florabaseId: id || undefined,
+            link: id
+                ? `https://florabase.dpaw.wa.gov.au/browse/profile/${id}`
+                : undefined,
+            image:
+                id && hasImage
+                    ? {
+                          original: originalImage,
+                          thumbnail: thumbnailImage,
+                          large: largeImage,
+                      }
+                    : undefined,
+        },
+    });
+
+    return true;
 };
