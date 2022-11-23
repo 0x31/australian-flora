@@ -1,6 +1,7 @@
 {
     "name": "frontend",
     "version": "0.2.0",
+    "homepage": "https://flora.noiach.com",
     "private": true,
     "dependencies": {
         "@headlessui/react": "^1.7.4",
