@@ -1,5 +1,6 @@
 import { existsSync, readdirSync } from "fs";
 import https from "https";
+import { join } from "path";
 
 import cors from "cors";
 import express from "express";
@@ -49,6 +50,11 @@ export const startServer = async (db: Database) => {
 
     // Serve frontend production build.
     app.use("/", express.static(FE_BUILD_DIR));
+
+    // custom 404
+    app.use((req, res, next) => {
+        res.status(404).sendFile(join(FE_BUILD_DIR, "index.html"));
+    });
 
     if (existsSync("/etc/letsencrypt/live")) {
         app.all("*", (req, res, next) => {

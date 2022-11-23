@@ -6,8 +6,8 @@ import { SearchInput } from "./SearchInput";
 
 export const Header: React.FC<{
     onSearch: (search: string) => void;
-    search: string;
-    result: Result | undefined;
+    search?: string;
+    result?: Result | undefined;
 }> = ({ onSearch, search, result }) => {
     return (
         <div className="bg-gray-50 w-full h-full shadows-sm border-b py-3 px-9">

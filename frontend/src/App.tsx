@@ -6,6 +6,7 @@ import useLocalStorage from "react-use-localstorage";
 import { Banner } from "./components/common/Banner";
 import { fetchSearchResult } from "./lib/server";
 import { HomePage } from "./pages/HomePage";
+import { NotFound } from "./pages/NotFound";
 import { SearchResult } from "./pages/SearchResults";
 import { Result } from "./types/result";
 
@@ -97,6 +98,7 @@ export const App: React.FC = () => {
                         )
                     }
                 />
+                <Route path="*" element={<NotFound onSearch={onSearch} />} />
             </Routes>
         </div>
     );

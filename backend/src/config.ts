@@ -1,7 +1,7 @@
 import { join } from "path";
 
-export const HTTP_PORT = process.env.PORT || 8080;
-export const HTTPS_PORT = process.env.PORT || 443;
+export const HTTP_PORT = process.env.PORT || 80;
+export const HTTPS_PORT = process.env.HTTPS_PORT || 443;
 
 export const DATA_DIR = join(__dirname, "../../data");
 
