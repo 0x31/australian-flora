@@ -158,7 +158,7 @@ export const toDatapointSmall = (datapoint: DatapointExtra): DatapointSmall => {
         hybrid: datapoint.apniName.hybrid === "t",
         native:
             !datapoint.distributionRegions ||
-            datapoint.distributionRegions?.Australia?.native,
+            datapoint.distributionRegions?.Australia?.native === true,
         acceptedName: datapoint.accepted?.apniName.canonicalName,
         pageviews: datapoint.extra.wikipedia?.pageviews,
         matchedName: datapoint.matchedName,

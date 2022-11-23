@@ -65,7 +65,7 @@ export const ResultCards: React.FC<{
                                     />
                                 </div>
                             )}
-                            {match.native === false ? (
+                            {!match.native ? (
                                 <div className="opacity-90 bg-red-400 text-white border border-red-500 px-2 py-1 rounded-md top-1 right-1 absolute">
                                     Naturalised
                                 </div>

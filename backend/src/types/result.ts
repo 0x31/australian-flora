@@ -58,7 +58,7 @@ export interface DatapointSmall {
     taxonomicStatus: string;
     cultivar?: boolean;
     hybrid?: boolean;
-    native?: boolean;
+    native: boolean;
     pageviews?: number;
     matchedName?: string;
 }
