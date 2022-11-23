@@ -4,6 +4,7 @@ import https from "https";
 import cors from "cors";
 import express from "express";
 import { readFile } from "fs/promises";
+import helmet from "helmet";
 
 import { FE_BUILD_DIR, HTTP_PORT, HTTPS_PORT, IMAGES_DIR } from "../config";
 import { Database } from "../db/loadDB";
@@ -13,6 +14,10 @@ import { searchEngine } from "./searchEngine";
 export const startServer = async (db: Database) => {
     const app = express();
     app.use(cors());
+
+    // https://expressjs.com/en/advanced/best-practice-security.html
+    app.use(helmet());
+    app.disable("x-powered-by");
 
     // A health endpoint indicating that the server is up.
     app.get<{ tagId: string }>("/api/health", (req, res) => {
