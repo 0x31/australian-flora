@@ -60,11 +60,12 @@ export const Taxonomy: React.FC<Props> = ({ result, className }) => {
             : []),
         ...(result.apniName.infraspecificEpithet &&
         result.apniName.taxonRankAbbreviation !== "[unranked]" &&
-        result.apniName.infraspecificEpithet !== "[unknown"
+        result.apniName.infraspecificEpithet !== "[unknown]"
             ? [
                   {
                       name: `${result.apniName.taxonRankAbbreviation} ${result.apniName.infraspecificEpithet}`,
-                      href: `${result.apniName.genericName} ${result.apniName.infraspecificEpithet}`,
+                      // TODO: Improve creating infraspecific link.
+                      href: `${result.apniName.genericName} ${result.apniName.specificEpithet} ${result.apniName.taxonRankAbbreviation} ${result.apniName.infraspecificEpithet}`,
                   },
               ]
             : []),
