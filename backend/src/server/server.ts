@@ -16,10 +16,6 @@ export const startServer = async (db: Database) => {
     const app = express();
     app.use(cors());
 
-    // https://expressjs.com/en/advanced/best-practice-security.html
-    app.use(helmet());
-    app.disable("x-powered-by");
-
     // A health endpoint indicating that the server is up.
     app.get<{ tagId: string }>("/api/health", (req, res) => {
         res.json({ online: true, message: "Status: Least Concern (LC)" });
@@ -57,6 +53,10 @@ export const startServer = async (db: Database) => {
     });
 
     if (existsSync("/etc/letsencrypt/live")) {
+        // https://expressjs.com/en/advanced/best-practice-security.html
+        app.use(helmet());
+        app.disable("x-powered-by");
+
         app.all("*", (req, res, next) => {
             if (req.secure) {
                 return next();
