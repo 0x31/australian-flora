@@ -56,11 +56,11 @@ export const ImageGallery: React.FC<{ result: DatapointExtra }> = ({
                             return (
                                 <div
                                     key={link}
-                                    className="relative mr-4 group h-[20rem]"
+                                    className=" inline-block relative m-1 group h-80 w-auto shadow-lg flex-shrink-0 rounded-lg"
                                 >
                                     <img
                                         key={image}
-                                        className="shadow-lg rounded-lg max-h-[20rem] min-h-[20rem]"
+                                        className="rounded-lg object-cover w-auto h-80"
                                         alt={result.apniName.canonicalName}
                                         src={API + image}
                                     />
@@ -70,7 +70,7 @@ export const ImageGallery: React.FC<{ result: DatapointExtra }> = ({
                                             className="w-10"
                                         />
                                     </div>
-                                    <div className=" overflow-scroll absolute text-black bg-white opacity-80 bottom-0 p-2 flex w-full invisible group-hover:visible">
+                                    <div className="rounded-b-lg overflow-x-scroll absolute text-black bg-white opacity-80 bottom-0 p-2 flex w-full invisible group-hover:visible">
                                         <span>
                                             {caption ? (
                                                 <span>

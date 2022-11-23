@@ -10,7 +10,7 @@ export const ResultSection: React.FC<
         <div className="sm:grid sm:grid-cols-8 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
             <label
                 htmlFor="username"
-                className="block text-sm font-bold sm:font-medium text-gray-700 mb-2 sm:mb-0"
+                className="block text-sm font-bold sm:font-medium text-gray-700 mb-2 sm:mb-0 text-ellipsis overflow-x-hidden"
             >
                 {title}
             </label>
