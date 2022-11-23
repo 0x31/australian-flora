@@ -36,7 +36,7 @@ export const ResultCards: React.FC<{
                                 <>
                                     <div
                                         className={classNames(
-                                            "rounded-t flex justify-center items-center h-full bg-gray-50 w-[190px]",
+                                            "absolute top-0 rounded-t flex justify-center items-center h-full bg-gray-50 w-[190px]",
                                             loaded ? "hidden" : "visible"
                                         )}
                                     >
@@ -49,7 +49,7 @@ export const ResultCards: React.FC<{
                                         // Only load the image when in view
                                         loading="lazy"
                                         className={classNames(
-                                            "rounded-t h-full object-cover w-[190px]",
+                                            "absolute top-0 rounded-t h-full object-cover w-[190px]",
                                             loaded ? "visible" : "invisible"
                                         )}
                                         alt={match.canonicalName}
