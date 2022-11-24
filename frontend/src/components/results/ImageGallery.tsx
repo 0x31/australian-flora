@@ -45,7 +45,7 @@ export const ImageGallery: React.FC<{ result: DatapointExtra }> = ({
             {/* Show images */}
             {images.length ? (
                 <ResultSection title="Gallery">
-                    <div className="w-full max-w-lg flex justify-center sm:justify-start shadow-sm min-w-full border bg-gray-50 p-3 rounded-lg overflow-y-scroll">
+                    <div className="w-full max-w-lg flex shadow-sm min-w-full border bg-gray-50 p-3 rounded-lg overflow-y-scroll">
                         {images.map(({ image, source, caption, link }) => {
                             // TODO: Improve processing caption.
                             caption = caption?.replace(/<br ?\/>/g, " - ");
