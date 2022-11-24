@@ -1,4 +1,5 @@
 import { existsSync, readdirSync } from "fs";
+import http from "http";
 import https from "https";
 import { join } from "path";
 
@@ -13,8 +14,30 @@ import { searchEngine } from "./searchEngine";
 
 // Start listening on `PORT` for incoming requests.
 export const startServer = async (db: Database) => {
+    // Check if HTTPS certificates are present.
+    const httpsEnabled = existsSync("/etc/letsencrypt/live");
+
     const app = express();
     app.use(cors());
+
+    // Enable HTTPS redirects and security headers.
+    if (httpsEnabled) {
+        // https://expressjs.com/en/advanced/best-practice-security.html
+        app.use(helmet());
+        app.disable("x-powered-by");
+
+        app.all("*", (req, res, next) => {
+            if (req.secure) {
+                return next();
+            }
+            res.redirect(
+                "https://" +
+                    req.hostname +
+                    (HTTPS_PORT !== 443 ? ":" + HTTPS_PORT : "") +
+                    req.url
+            );
+        });
+    }
 
     // A health endpoint indicating that the server is up.
     app.get<{ tagId: string }>("/api/health", (req, res) => {
@@ -47,28 +70,18 @@ export const startServer = async (db: Database) => {
     // Serve frontend production build.
     app.use("/", express.static(FE_BUILD_DIR));
 
-    // custom 404
+    // Custom 404
     app.use((req, res, next) => {
-        res.status(404).sendFile(join(FE_BUILD_DIR, "index.html"));
+        const notFoundPath = join(FE_BUILD_DIR, "index.html");
+        if (existsSync(notFoundPath)) {
+            res.status(404).sendFile(join(FE_BUILD_DIR, "index.html"));
+        } else {
+            res.status(404).send(`Resource not found.`);
+        }
     });
 
-    if (existsSync("/etc/letsencrypt/live")) {
-        // https://expressjs.com/en/advanced/best-practice-security.html
-        app.use(helmet());
-        app.disable("x-powered-by");
-
-        app.all("*", (req, res, next) => {
-            if (req.secure) {
-                return next();
-            }
-            res.redirect(
-                "https://" +
-                    req.hostname +
-                    (HTTPS_PORT !== 443 ? ":" + HTTPS_PORT : "") +
-                    req.url
-            );
-        });
-
+    if (httpsEnabled) {
+        // TODO: This assumes there's only one set of keys.
         const certdir = readdirSync("/etc/letsencrypt/live").filter(
             (f) => f !== "README"
         )[0];
@@ -84,9 +97,16 @@ export const startServer = async (db: Database) => {
         https.createServer({ key, cert }, app).listen(HTTPS_PORT, () => {
             console.info(`HTTPS server started on port ${HTTPS_PORT}...`);
         });
-    }
 
-    app.listen(HTTP_PORT, () => {
-        console.info(`HTTP server started on port ${HTTP_PORT}...`);
-    });
+        // redirect HTTP server
+        app.all("*", (req, res) => res.redirect(300, "https://localhost"));
+        const httpServer = http.createServer(app);
+        httpServer.listen(80, () =>
+            console.info(`HTTP server started on port ${HTTP_PORT}...`)
+        );
+    } else {
+        app.listen(HTTP_PORT, () => {
+            console.info(`HTTP server started on port ${HTTP_PORT}...`);
+        });
+    }
 };
