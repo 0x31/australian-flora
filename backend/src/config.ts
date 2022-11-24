@@ -5,7 +5,7 @@ export const HTTPS_PORT = process.env.HTTPS_PORT || 443;
 
 export const DATA_DIR = join(__dirname, "../../data");
 
-export const FE_BUILD_DIR = join(__dirname, "../../frontend/build");
+export const FE_BUILD_DIR = join(__dirname, "../../frontend/dist");
 
 // Scraped images
 export const IMAGES_DIR = join(DATA_DIR, "/images");
